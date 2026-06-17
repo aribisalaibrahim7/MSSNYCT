@@ -106,7 +106,7 @@ export async function getCloudinaryResources() {
     });
 
     const uniqueVideoBases = new Set();
-    const videos = [];
+    const videos: any[] = [];
     videosResult.resources.forEach((res: any) => {
       const name = res.public_id.toUpperCase();
       if (name.includes('SAMPLE')) return;

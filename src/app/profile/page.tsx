@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { User, Mail, Shield, Download, MapPin, GraduationCap, Phone, Edit3, Save, X, Loader2, Sparkles } from "lucide-react";
 import axios from "axios";
+import { useAlert } from "@/components/providers/AlertProvider";
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
+  const { showAlert } = useAlert();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -49,8 +51,9 @@ export default function ProfilePage() {
         profile: res.data
       }); // Refresh session with new data
       setIsEditing(false);
+      showAlert("Profile Updated", "Your changes have been saved successfully and your session is in sync.", "success");
     } catch (err) {
-      alert("Failed to update profile");
+      showAlert("Save Failed", "Failed to update profile. Please verify your fields.", "error");
     } finally {
       setIsSaving(false);
     }

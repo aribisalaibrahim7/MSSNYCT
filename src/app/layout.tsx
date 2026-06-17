@@ -18,6 +18,8 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/components/providers/SessionProvider";
+import { AlertProvider } from "@/components/providers/AlertProvider";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -31,8 +33,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>
-          {children}
+          <AlertProvider>
+            {children}
+          </AlertProvider>
         </AuthProvider>
+        <Script src="https://sdk.monnify.com/plugin/monnify.js" strategy="lazyOnload" />
       </body>
     </html>
   );

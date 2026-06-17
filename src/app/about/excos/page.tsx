@@ -5,6 +5,7 @@ import { User, ShieldCheck, Mail, Loader2, CheckCircle2, AlertCircle, X } from "
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { useAlert } from "@/components/providers/AlertProvider";
 
 const excos = [
   {
@@ -47,10 +48,12 @@ export default function ExcosPage() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const { showAlert } = useAlert();
+
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) {
-       alert("Please login to apply");
+       showAlert("Authentication Required", "Please log in to apply for committees.", "info");
        return;
     }
     

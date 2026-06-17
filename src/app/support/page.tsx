@@ -5,8 +5,10 @@ import { HelpCircle, Book, Heart, Send, MessageCircle, AlertCircle, Loader2 } fr
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+import { useAlert } from "@/components/providers/AlertProvider";
 
 export default function SupportPage() {
+  const { showAlert } = useAlert();
   const [category, setCategory] = useState("Academic Help");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +30,7 @@ export default function SupportPage() {
       await axios.post("/api/support", data);
       setIsSubmitted(true);
     } catch (err) {
-      alert("Failed to send request. Please try again.");
+      showAlert("Failed to Send", "Failed to send your request. Please check your connection and try again.", "error");
     } finally {
       setIsLoading(false);
     }

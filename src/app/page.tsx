@@ -7,10 +7,13 @@ import axios from "axios";
 import { Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { useAlert } from "@/components/providers/AlertProvider";
+
 function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const { showAlert } = useAlert();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +21,9 @@ function NewsletterForm() {
     try {
       await axios.post("/api/newsletter", { email, sendSms: true });
       setIsSubscribed(true);
+      showAlert("Subscribed!", "You have successfully subscribed to our newsletter and broadcast updates.", "success");
     } catch (err) {
-      alert("Something went wrong");
+      showAlert("Error", "Something went wrong. Please check your network connection and try again.", "error");
     } finally {
       setIsLoading(false);
     }

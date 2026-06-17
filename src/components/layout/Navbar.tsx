@@ -10,7 +10,7 @@ const navLinks = [
   { name: "Home", href: "/" },
   { name: "Officials", href: "/about/excos" },
   { name: "Resource Vault", href: "/resources" },
-  { name: "Calendar", href: "/calendar" },
+  { name: "Events", href: "/events" },
   { name: "Gallery", href: "/gallery" },
   { name: "Support", href: "/support" },
 ];

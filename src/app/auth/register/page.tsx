@@ -33,7 +33,10 @@ export default function RegisterPage() {
 
       router.push("/auth/login?registered=true");
     } catch (err: any) {
-      setError(err.response?.data || "Something went wrong");
+      const errMsg = err.response?.data?.error || 
+                     (typeof err.response?.data === 'string' ? err.response?.data : null) || 
+                     "Something went wrong";
+      setError(errMsg);
     } finally {
       setIsLoading(false);
     }

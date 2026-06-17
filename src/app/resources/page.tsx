@@ -18,7 +18,13 @@ export default function ResourceVaultPage() {
     const fetchResources = async () => {
       try {
         const res = await axios.get("/api/resources");
-        setResources(res.data);
+        // Guard: only set if the response is an array, not an error object
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setResources(data);
+        } else {
+          console.error("Resources API returned non-array:", data);
+        }
       } catch (err) {
         console.error("Failed to fetch resources");
       } finally {

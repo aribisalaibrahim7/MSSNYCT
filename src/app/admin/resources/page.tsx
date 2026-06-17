@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Trash2, Edit, Loader2, Search, FileText } from "lucide-react";
+import { useAlert } from "@/components/providers/AlertProvider";
 
 export default function AdminResources() {
+  const { showAlert } = useAlert();
   const [resources, setResources] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [newResource, setNewResource] = useState({
     title: "",
     category: "Past Questions",
@@ -18,7 +21,7 @@ export default function AdminResources() {
   const fetchResources = async () => {
     try {
       const res = await axios.get("/api/resources");
-      setResources(res.data);
+      setResources(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Fetch failed");
     } finally {
@@ -39,23 +42,32 @@ export default function AdminResources() {
       setNewResource({ title: "", category: "Past Questions", type: "PDF", fileUrl: "" });
       setIsAdding(false);
       fetchResources();
+      showAlert("Resource Added", "The new resource has been uploaded successfully.", "success");
     } catch (err) {
-      alert("Failed to add resource");
+      showAlert("Operation Failed", "Failed to add the resource. Please verify the file details.", "error");
       setIsAdding(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    setConfirmDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await axios.delete(`/api/resources/${id}`);
+      await axios.delete(`/api/resources/${confirmDeleteId}`);
+      setConfirmDeleteId(null);
       fetchResources();
+      showAlert("Deleted", "Resource successfully deleted.", "success");
     } catch (err) {
-      alert("Failed to delete");
+      setConfirmDeleteId(null);
+      showAlert("Operation Failed", "Failed to delete resource.", "error");
     }
   };
 
   return (
+    <>
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
@@ -152,5 +164,35 @@ export default function AdminResources() {
          </table>
       </div>
     </div>
+
+    {/* Delete Confirmation Modal */}
+    {confirmDeleteId && (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl p-8">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Trash2 size={28} className="text-red-600" />
+          </div>
+          <h3 className="text-2xl font-bold mb-3">Delete Resource?</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            This action is permanent and cannot be undone. The resource will be removed from the system.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setConfirmDeleteId(null)}
+              className="flex-1 bg-slate-100 dark:bg-slate-800 text-foreground py-3.5 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-border"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="flex-1 bg-red-600 text-white py-3.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

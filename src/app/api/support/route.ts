@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from: 'MSSN Hub Support <onboarding@resend.dev>',
+        from: 'MSSN Hub Support <support@xauxenae.resend.app>',
         to: 'mssnyabatech4@gmail.com',
         subject: `New Support Request: ${category}`,
         html: `
