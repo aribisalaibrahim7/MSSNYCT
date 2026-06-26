@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from "@/components/providers/SessionProvider";
 import { AlertProvider } from "@/components/providers/AlertProvider";
+import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -37,6 +38,7 @@ export default function RootLayout({
             {children}
           </AlertProvider>
         </AuthProvider>
+        <Analytics />
         <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
       </body>
     </html>
