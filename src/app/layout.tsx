@@ -37,7 +37,7 @@ export default function RootLayout({
             {children}
           </AlertProvider>
         </AuthProvider>
-        <Script src="https://sdk.monnify.com/plugin/monnify.js" strategy="lazyOnload" />
+        <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
       </body>
     </html>
   );

@@ -105,7 +105,7 @@ export default function Hero() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Next Event</p>
-              <p className="font-bold text-sm">Orientation Week</p>
+              <p className="font-bold text-sm">Dawah Camp</p>
             </div>
           </motion.div>
 

@@ -9,24 +9,114 @@ import { useAlert } from "@/components/providers/AlertProvider";
 
 const excos = [
   {
-    name: "Br. Abdul-Lateef",
+    name: "Br. Abdulhafeez Oladipupo",
     role: "Ameer (President)",
-    dept: "Computer Technology",
+    dept: "Computer Science",
   },
   {
-    name: "Sr. Zainab",
+    name: "Sr. Halimah Mogaji",
     role: "Ameerah (Female President)",
-    dept: "Food Technology",
+    dept: "Food Science and Technology",
   },
   {
-    name: "Br. Yusuf",
+    name: "Br. Abdulsobur Aderohunmu",
+    role: "Naibul Ameer (Vice President)",
+    dept: "Computer Science",
+  },
+  {
+    name: "Sr. Khadijah Abduljaleel",
+    role: "Naibatul Ameerah (Female Vice President)",
+    dept: "Nutrition and Dietetics",
+  },
+  {
+    name: "Br. Uthman Hussein",
     role: "General Secretary",
-    dept: "Electrical Engineering",
+    dept: "Electrical and Electronics Engineering",
   },
   {
-    name: "Br. Ibrahim",
+    name: "Sr. Rogeebatul-Khayr Koleoso",
+    role: "Secretary Sister Circle",
+    dept: "Quantity Survey",
+  },
+  {
+    name: "Br. Abdulmuiz Ashiru",
+    role: "Financial Secretary",
+    dept: "Accounting",
+  },
+  {
+    name: "Br. Suliamon Abdulkareem",
+    role: "Director of Studies",
+    dept: "Civil Engineering",
+  },
+  {
+    name: "Br. Suliamon Bashorun",
     role: "Public Relations Officer",
-    dept: "Mass Communication",
+    dept: "Graphics",
+  },
+  {
+    name: "Br. Ibrahim Aribisala",
+    role: "Assistant Public Relations Officer",
+    dept: "Mechatronics Engineering",
+  },
+  {
+    name: "Sr. Naimoh Gazali",
+    role: "Female Public Relations Officer",
+    dept: "Public Administration",
+  },
+  {
+    name: "Br. Lukmon Adenle",
+    role: "Welfare Officer",
+    dept: "Business Administration",
+  },
+  {
+    name: "Br. Awwal Bello",
+    role: "Assistant Welfare Officer",
+    dept: "Welder and Fabrication",
+  },
+  {
+    name: "Sr. Mujeedah Mustapha",
+    role: "Female Welfare Officer",
+    dept: "Welder and Fabrication",
+  },
+  {
+    name: "Sr. Mariam Bello",
+    role: "Assistant Female Welfare Officer",
+    dept: "",
+  },
+  {
+    name: "Br. Habeeb Abdulhakeem",
+    role: "Asset Maintenance Officer",
+    dept: "Electrical and Electronics Engineering",
+  },
+  {
+    name: "Br. Nurudeen Obitayo",
+    role: "Assistant Asset Maintenance Officer",
+    dept: "Electrical and Electronics Engineering",
+  },
+  {
+    name: "Br. Yahya",
+    role: "Liberian",
+    dept: "Marketing",
+  },
+  {
+    name: "Sr. Zainab Abidoye",
+    role: "Female Liberian",
+    dept: "Civil Engineering",
+  },
+  {
+    name: "Sr. Rosheedah Abdul-jaleel",
+    role: "Female Editor",
+    dept: "Statistic",
+  },
+  {
+    name: "Sr. Jelilah Akorede",
+    role: "Business Chairperson",
+    dept: "Food Science and Technology",
+  },
+  {
+    name: "Sr. Faidah Popoola",
+    role: "Business Chairperson",
+    dept: "Photography",
   },
 ];
 

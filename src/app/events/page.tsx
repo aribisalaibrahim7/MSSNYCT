@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/layout/Navbar";
 import {
-  MapPin, Clock, DollarSign, X, CreditCard, ShieldCheck,
+  MapPin, Clock, X, CreditCard, ShieldCheck,
   Loader2, CheckCircle2, Share2, ChevronRight, Sparkles,
   Mail, Phone, User, BookOpen, GraduationCap, Users,
   CalendarX, Banknote, Star, Zap
@@ -15,84 +15,84 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useAlert } from "@/components/providers/AlertProvider";
 
 /* ------------------------------------------------------------------ */
-/*  Event data — year 2026 (full year)                                  */
+/*  Event data                                                          */
 /* ------------------------------------------------------------------ */
+const now = new Date();
+const dawahCampClosed = now > new Date("2026-07-20T23:59:59+01:00");
+const dawahCampPrice = now <= new Date("2026-07-05T23:59:59+01:00") ? 3500 : 4000;
+
 const EVENTS = [
   {
-    id: "evt_past_1",
-    year: 2026, month: "MAR", day: "10", dateObj: new Date("2026-03-10"),
-    title: "Islamic New Year Lecture",
-    time: "10:00 AM", location: "Masjid Al-Ihsan",
-    category: "Spiritual",
-    summary: "Reflections on the Hijri new year and renewed intentions.",
-    desc: "A scholarly lecture covering the significance of the Islamic New Year, lessons from the Hijra of the Prophet ﷺ, and practical steps for spiritual renewal in the new year.",
-    registrationRequired: false, isPaid: false, price: 0,
-  },
-  {
-    id: "evt_past_2",
-    year: 2026, month: "APR", day: "28", dateObj: new Date("2026-04-28"),
-    title: "Sisters' Empowerment Forum",
-    time: "11:00 AM", location: "Conference Room B",
-    category: "Social",
-    summary: "Celebrating and empowering Muslim women on campus.",
-    desc: "An intimate forum featuring inspiring talks, open discussions, and networking for Muslim female students. Topics include faith, academics, career, and womanhood in Islam.",
-    registrationRequired: true, isPaid: false, price: 0,
-  },
-  {
-    id: "evt_1",
-    year: 2026, month: "JUL", day: "15", dateObj: new Date("2026-07-15"),
-    title: "Special Academic Seminar",
-    time: "10:00 AM", location: "Masjid Hall",
+    id: "evt_freshers",
+    year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"), // past date to auto-close
+    title: "Freshers' Orientation Week",
+    time: "TBD", location: "Yabatech Campus",
     category: "Academic",
-    summary: "Balancing secular studies and religious growth on campus.",
-    desc: "A highly informative seminar on 'Thriving in Yabatech: Balancing Academics and Deen'. Learn time management, stress management, and practical tips from top graduating seniors.",
+    summary: "Navigating campus life and balancing faith.",
+    desc: "Designed to help new students navigate campus life, balance faith with academics, and develop leadership and innovation skills.",
     registrationRequired: true, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
   },
   {
-    id: "evt_2",
-    year: 2026, month: "AUG", day: "02", dateObj: new Date("2026-08-02"),
-    title: "Ramadan Prep Intensive",
-    time: "1:30 PM", location: "Masjid Al-Ihsan",
+    id: "evt_ipw",
+    year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"),
+    title: "Islamic Propagation Week (IPW)",
+    time: "TBD", location: "Yabatech Campus",
     category: "Spiritual",
-    summary: "Maximizing the spiritual dimensions of the holy month.",
-    desc: "A spiritual workshop designed to prepare students for the fast of Ramadan. Topics include Fiqh of Fasting, daily schedules, Quran study programs, and maximizing rewards.",
+    summary: "A week-long series of Islamic seminars.",
+    desc: "A week-long series of Islamic seminars and lectures. It concludes with an annual conference used to nominate the chapter's new executives.",
     registrationRequired: true, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
   },
   {
-    id: "evt_3",
-    year: 2026, month: "SEP", day: "10", dateObj: new Date("2026-09-10"),
-    title: "Islamic Orientation Week (IOW)",
-    time: "8:00 AM", location: "Campus Wide",
+    id: "evt_ccs",
+    year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"),
+    title: "Career Counselling Seminar (CCS)",
+    time: "TBD", location: "Yabatech Campus",
+    category: "Academic",
+    summary: "Empowering students with skills and networking.",
+    desc: "An annual event focused on empowering students with skills, networking, and professional development.",
+    registrationRequired: true, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
+  },
+  {
+    id: "evt_awards",
+    year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"),
+    title: "Academic Awards & Celebrations",
+    time: "TBD", location: "Yabatech Campus",
     category: "Social",
-    summary: "Welcoming freshmen into the MSSN college community.",
-    desc: "A week-long series of activities including exhibitions, formal orientation lectures, mentorship sessions, and welcome gifts designed to integrate new students smoothly.",
-    registrationRequired: true, isPaid: true, price: 1500,
+    summary: "Celebrating Muslim graduates and executives.",
+    desc: "The chapter also hosts events to celebrate Muslim graduates and recognize ex-executives who bag distinctions, encouraging healthy networking.",
+    registrationRequired: true, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
   },
   {
-    id: "evt_4",
-    year: 2026, month: "OCT", day: "22", dateObj: new Date("2026-10-22"),
-    title: "Skills Acquisition Workshop",
-    time: "11:00 AM", location: "ICT Center",
-    category: "Tech",
-    summary: "Intensive training in UI/UX Design, Web Dev & Media Tools.",
-    desc: "A comprehensive practical bootcamp covering the basics of programming, user interface design, and multimedia production led by professional facilitators.",
-    registrationRequired: true, isPaid: true, price: 2000,
+    id: "evt_weekly",
+    year: "All", month: "Year", day: "Round", dateObj: new Date("2030-01-01"), // future date so it's open
+    title: "Weekly/Monthly Programmes",
+    time: "Various", location: "Yabatech Mosque & Open Air",
+    category: "Spiritual",
+    summary: "Regular classes and open-air lectures.",
+    desc: "Regular gatherings include Madrasah and Tahfeedh classes, Fajr Bayan, Fiqh classes, and Open Air Lectures.",
+    registrationRequired: false, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
   },
   {
-    id: "evt_5",
-    year: 2026, month: "DEC", day: "05", dateObj: new Date("2026-12-05"),
-    title: "Annual Youth Summit & Dinner",
-    time: "4:00 PM", location: "Multipurpose Hall",
-    category: "Conference",
-    summary: "Celebrate academic milestones, network, and enjoy dinner.",
-    desc: "The premier yearly gathering of MSSN members, alumni, and speakers. Features panel discussions on careers, networking sessions, and a grand dinner night.",
-    registrationRequired: true, isPaid: true, price: 5000,
-  },
+    id: "evt_dawah",
+    year: 2026, month: "JUL", day: "20", dateObj: new Date("2026-07-20T23:59:59+01:00"),
+    title: "Da'wah Camp",
+    time: "Day & Night", location: "Yabatech Mosque",
+    category: "Retreat",
+    summary: "A complete Islamic lifestyle experience retreat.",
+    desc: "A much-anticipated spiritual retreat traditionally organized immediately after the first-semester examinations. It is designed to provide complete Islamic lifestyle experiences through day and night sessions.",
+    registrationRequired: true, isPaid: true, price: dawahCampPrice,
+    hideDate: false, hidePrice: false,
+  }
 ];
 
 /* helpers */
 const isClosed = (evt: typeof EVENTS[0]) => evt.dateObj < new Date();
-const CATEGORIES = ["All", "Upcoming", "Past", "Paid", "Free", "Academic", "Spiritual", "Social", "Tech", "Conference"];
+const CATEGORIES = ["All", "Upcoming", "Past", "Academic", "Spiritual", "Social", "Retreat"];
 
 const LEVELS = [
   "ND I (100L)", "ND II (200L)", "HND I (300L)", "HND II (400L)"
@@ -110,11 +110,10 @@ const DEPARTMENTS = [
 
 /* category accent colours */
 const categoryColour: Record<string, string> = {
-  Academic: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400",
-  Spiritual: "bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-400",
-  Social: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400",
-  Tech: "bg-sky-100 text-sky-700 dark:bg-sky-950/50 dark:text-sky-400",
-  Conference: "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400",
+  Academic: "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400",
+  Spiritual: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400",
+  Social: "bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-400",
+  Retreat: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
 };
 
 /* ------------------------------------------------------------------ */
@@ -183,8 +182,8 @@ export default function EventsHubPage() {
   });
   const [regLoading, setRegLoading] = useState(false);
 
-  /* Monnify / payment */
-  const [monnifyEvent, setMonnifyEvent] = useState<typeof EVENTS[0] | null>(null);
+  /* Paystack / payment */
+  const [paystackEvent, setPaystackEvent] = useState<typeof EVENTS[0] | null>(null);
 
   const now = new Date();
 
@@ -229,9 +228,9 @@ export default function EventsHubPage() {
     }
 
     if (selectedEvent.isPaid) {
-      // Go to payment (Monnify SDK will trigger via useEffect)
+      // Go to payment (Paystack SDK will trigger via useEffect)
       setShowRegForm(false);
-      setMonnifyEvent(selectedEvent);
+      setPaystackEvent(selectedEvent);
     } else {
       // Free — process directly
       await processRegistration(selectedEvent, "FREE_REG");
@@ -263,7 +262,7 @@ export default function EventsHubPage() {
         setRegisteredIds((prev) => [...prev, evt.id]);
         setShowRegForm(false);
         setSelectedEvent(null);
-        setMonnifyEvent(null);
+        setPaystackEvent(null);
         // Show unique success popup
         setShowSuccess({ title: evt.title, email: regForm.email || session?.user?.email || "" });
       }
@@ -275,50 +274,56 @@ export default function EventsHubPage() {
     }
   };
 
-  /* -------- Monnify Payment Integration -------- */
+  /* -------- Paystack Payment Integration -------- */
   useEffect(() => {
-    if (monnifyEvent && typeof window !== "undefined") {
-      const initMonnify = () => {
-        if (!(window as any).MonnifySDK) {
+    if (paystackEvent && typeof window !== "undefined") {
+      const initPaystack = () => {
+        if (!(window as any).PaystackPop) {
           showAlert("Error", "Payment gateway is still loading. Please try again in a few seconds.", "error");
-          setMonnifyEvent(null);
+          setPaystackEvent(null);
           return;
         }
 
         try {
-          (window as any).MonnifySDK.initialize({
-            amount: monnifyEvent.price,
+          const handler = (window as any).PaystackPop.setup({
+            key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_c31f49d32b5f7cf8cf59600e0084c7b80cba000d", // Test key fallback
+            email: regForm.email || session?.user?.email || "student@mssnyabatech.com",
+            amount: paystackEvent.price * 100, // Paystack calculates in kobo
+            ref: "MSSN_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
             currency: "NGN",
-            reference: "MSSN_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
-            customerFullName: regForm.fullName || session?.user?.name || "Student",
-            customerEmail: regForm.email || session?.user?.email,
-            apiKey: process.env.NEXT_PUBLIC_MONNIFY_API_KEY || "MK_TEST_SAFARISUITE",
-            contractCode: process.env.NEXT_PUBLIC_MONNIFY_CONTRACT_CODE || "493412169",
-            paymentDescription: `Ticket – ${monnifyEvent.title}`,
-            isTestMode: true,
-            onComplete: (res: any) => {
-              if (res.paymentStatus === "PAID" || res.status === "SUCCESS") {
-                processRegistration(monnifyEvent, res.transactionReference || res.reference || "MNFY_SDK");
+            metadata: {
+              custom_fields: [
+                {
+                  display_name: "Event Title",
+                  variable_name: "event_title",
+                  value: paystackEvent.title,
+                },
+              ],
+            },
+            callback: (res: any) => {
+              if (res.status === "success" || res.message === "Approved") {
+                processRegistration(paystackEvent, res.reference);
               } else {
-                showAlert("Payment Failed", "Monnify could not process this payment.", "error");
-                setMonnifyEvent(null);
+                showAlert("Payment Failed", "Payment could not be confirmed.", "error");
+                setPaystackEvent(null);
               }
             },
             onClose: () => {
               // User closed the widget
-              setMonnifyEvent(null);
+              setPaystackEvent(null);
             },
           });
+          handler.openIframe();
         } catch (err) {
           console.error(err);
           showAlert("Error", "Failed to initialize payment gateway.", "error");
-          setMonnifyEvent(null);
+          setPaystackEvent(null);
         }
       };
 
-      initMonnify();
+      initPaystack();
     }
-  }, [monnifyEvent]);
+  }, [paystackEvent]);
 
   /* ------------------------------------------------------------------ */
   return (
@@ -450,30 +455,32 @@ export default function EventsHubPage() {
 
                     <div className="p-7 flex flex-col flex-1">
                       {/* Date badge */}
-                      <div className={cn(
-                        "self-start flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold mb-5",
-                        closed
-                          ? "bg-slate-100 dark:bg-slate-800 text-muted-foreground"
-                          : "bg-primary/10 text-primary"
-                      )}>
-                        <Clock size={12} />
-                        {evt.month} {evt.day}, {evt.year} · {evt.time}
-                      </div>
+                      {!evt.hideDate && (
+                        <div className={cn(
+                          "self-start flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold mb-5",
+                          closed
+                            ? "bg-slate-100 dark:bg-slate-800 text-muted-foreground"
+                            : "bg-primary/10 text-primary"
+                        )}>
+                          <Clock size={12} />
+                          {evt.month} {evt.day}, {evt.year} · {evt.time}
+                        </div>
+                      )}
 
                       {/* Category & price badges */}
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className={cn("flex flex-wrap gap-2 mb-4", evt.hideDate && "mt-2")}>
                         <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", catCls)}>
                           {evt.category}
                         </span>
-                        {evt.isPaid ? (
+                        {!evt.hidePrice && (evt.isPaid ? (
                           <span className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                            <DollarSign size={9} />₦{evt.price.toLocaleString()}
+                            ₦{evt.price.toLocaleString()}
                           </span>
                         ) : (
                           <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                             Free
                           </span>
-                        )}
+                        ))}
                       </div>
 
                       <h3 className={cn(
@@ -510,6 +517,10 @@ export default function EventsHubPage() {
                             <span className="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-muted-foreground border border-border/40 flex items-center gap-1.5 cursor-not-allowed">
                               <CalendarX size={13} /> Closed
                             </span>
+                          ) : !evt.registrationRequired ? (
+                            <span className="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                              Open Access
+                            </span>
                           ) : registered ? (
                             <span className="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                               <CheckCircle2 size={13} /> Registered
@@ -524,7 +535,7 @@ export default function EventsHubPage() {
                               {loadingId === evt.id ? (
                                 <Loader2 size={13} className="animate-spin" />
                               ) : evt.isPaid ? (
-                                <><DollarSign size={12} /> Pay & Register</>
+                                <>Register</>
                               ) : (
                                 "Register"
                               )}
@@ -595,15 +606,15 @@ export default function EventsHubPage() {
                   <span className={cn("px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", categoryColour[selectedEvent.category] || "bg-slate-100 text-slate-700")}>
                     {selectedEvent.category}
                   </span>
-                  {selectedEvent.isPaid ? (
+                  {!selectedEvent.hidePrice && (selectedEvent.isPaid ? (
                     <span className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                      <DollarSign size={9} /> ₦{selectedEvent.price.toLocaleString()}
+                      ₦{selectedEvent.price.toLocaleString()}
                     </span>
                   ) : (
                     <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                       Free
                     </span>
-                  )}
+                  ))}
                 </div>
 
                 <h2 className="text-3xl font-heading font-bold mb-2 leading-tight">{selectedEvent.title}</h2>
@@ -611,10 +622,12 @@ export default function EventsHubPage() {
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">{selectedEvent.desc}</p>
 
                 <div className="space-y-2.5 bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-border/40 mb-7">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Clock size={16} className="text-primary flex-shrink-0" />
-                    <span>{selectedEvent.year} {selectedEvent.month} {selectedEvent.day} — {selectedEvent.time}</span>
-                  </div>
+                  {!selectedEvent.hideDate && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Clock size={16} className="text-primary flex-shrink-0" />
+                      <span>{selectedEvent.year} {selectedEvent.month} {selectedEvent.day} — {selectedEvent.time}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3 text-sm">
                     <MapPin size={16} className="text-primary flex-shrink-0" />
                     <span>{selectedEvent.location}</span>
@@ -630,6 +643,10 @@ export default function EventsHubPage() {
                     <div className="flex-1 bg-slate-100 dark:bg-slate-800 text-muted-foreground py-3.5 rounded-xl font-bold text-center flex items-center justify-center gap-2 border border-border">
                       <CalendarX size={16} /> Programme Closed
                     </div>
+                  ) : !selectedEvent.registrationRequired ? (
+                    <div className="flex-1 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 py-3.5 rounded-xl font-bold text-center flex items-center justify-center gap-2">
+                      <CheckCircle2 size={16} /> Open Access
+                    </div>
                   ) : registeredIds.includes(selectedEvent.id) ? (
                     <div className="flex-1 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 py-3.5 rounded-xl font-bold text-center flex items-center justify-center gap-2">
                       <CheckCircle2 size={16} /> Already Registered
@@ -640,7 +657,7 @@ export default function EventsHubPage() {
                       onClick={() => handleRegisterClick(selectedEvent)}
                       className="flex-1 bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      {selectedEvent.isPaid ? `Pay ₦${selectedEvent.price.toLocaleString()} & Register` : "Register Now"}
+                      {selectedEvent.isPaid && !selectedEvent.hidePrice ? `Register` : "Register Now"}
                     </motion.button>
                   )}
                   <button
@@ -688,8 +705,8 @@ export default function EventsHubPage() {
                   <span className="flex items-center gap-1"><MapPin size={11} /> {selectedEvent.location}</span>
                 </div>
                 {selectedEvent.isPaid && (
-                  <div className="mt-3 inline-flex items-center gap-1.5 bg-white/20 text-white px-3 py-1 rounded-full text-xs font-bold">
-                    <DollarSign size={11} /> ₦{selectedEvent.price.toLocaleString()} — Payment required after this form
+                  <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 p-4 rounded-xl text-xs font-semibold flex items-center gap-2 border border-amber-200/50 dark:border-amber-900/50 mt-2">
+                    ₦{selectedEvent.price.toLocaleString()} — Payment required after this form
                   </div>
                 )}
               </div>

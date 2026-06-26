@@ -101,7 +101,7 @@ export default function Home() {
               title="Digital ID" 
               desc="Generate your membership profile and track your growth." 
               icon="🆔"
-              href="/auth/register"
+              href="/profile"
             />
             <FeatureCard 
               title="Smart Calendar" 
@@ -205,7 +205,7 @@ export default function Home() {
                <Link href="/resources" className="hover:text-primary">Resources</Link>
                <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
             </div>
-            <p className="text-sm text-muted-foreground">© 2024 MSSN Yabatech Digital Hub. Built with Excellence.</p>
+            <p className="text-sm text-muted-foreground">© 2026 MSSN Yabatech Digital Hub. Built with Excellence.</p>
          </div>
       </footer>
     </main>

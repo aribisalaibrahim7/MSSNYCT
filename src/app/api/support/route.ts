@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -8,11 +8,20 @@ export async function POST(req: Request) {
 
     console.log("SUPPORT_REQUEST_RECEIVED", { name, email, phone, message, category });
 
-    // Send email using Resend
-    if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: 'MSSN Hub Support <support@xauxenae.resend.app>',
+    // Send email using Nodemailer
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: '"MSSN Hub Support" <' + process.env.SMTP_USER + '>',
         to: 'mssnyabatech4@gmail.com',
         subject: `New Support Request: ${category}`,
         html: `
