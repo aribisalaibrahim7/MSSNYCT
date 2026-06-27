@@ -23,6 +23,17 @@ const dawahCampPrice = now <= new Date("2026-07-05T23:59:59+01:00") ? 3500 : 400
 
 const EVENTS = [
   {
+    id: "evt_dawah",
+    year: 2026, month: "JUL", day: "20", dateObj: new Date("2026-07-20T23:59:59+01:00"),
+    title: "Da'wah Camp",
+    time: "Day & Night", location: "Yabatech Mosque",
+    category: "Retreat",
+    summary: "A complete Islamic lifestyle experience retreat.",
+    desc: "A much-anticipated spiritual retreat traditionally organized immediately after the first-semester examinations. It is designed to provide complete Islamic lifestyle experiences through day and night sessions.",
+    registrationRequired: true, isPaid: true, price: dawahCampPrice,
+    hideDate: false, hidePrice: false,
+  },
+  {
     id: "evt_freshers",
     year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"), // past date to auto-close
     title: "Freshers' Orientation Week",
@@ -76,17 +87,6 @@ const EVENTS = [
     desc: "Regular gatherings include Madrasah and Tahfeedh classes, Fajr Bayan, Fiqh classes, and Open Air Lectures.",
     registrationRequired: false, isPaid: false, price: 0,
     hideDate: true, hidePrice: true,
-  },
-  {
-    id: "evt_dawah",
-    year: 2026, month: "JUL", day: "20", dateObj: new Date("2026-07-20T23:59:59+01:00"),
-    title: "Da'wah Camp",
-    time: "Day & Night", location: "Yabatech Mosque",
-    category: "Retreat",
-    summary: "A complete Islamic lifestyle experience retreat.",
-    desc: "A much-anticipated spiritual retreat traditionally organized immediately after the first-semester examinations. It is designed to provide complete Islamic lifestyle experiences through day and night sessions.",
-    registrationRequired: true, isPaid: true, price: dawahCampPrice,
-    hideDate: false, hidePrice: false,
   }
 ];
 
