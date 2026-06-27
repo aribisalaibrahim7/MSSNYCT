@@ -34,6 +34,17 @@ const EVENTS = [
     hideDate: false, hidePrice: false,
   },
   {
+    id: "evt_weekly",
+    year: "All", month: "Year", day: "Round", dateObj: new Date("2030-01-01"), // future date so it's open
+    title: "Weekly/Monthly Programmes",
+    time: "Various", location: "Yabatech Mosque & Open Air",
+    category: "Spiritual",
+    summary: "Regular classes and open-air lectures.",
+    desc: "Regular gatherings include Madrasah and Tahfeedh classes, Fajr Bayan, Fiqh classes, and Open Air Lectures.",
+    registrationRequired: false, isPaid: false, price: 0,
+    hideDate: true, hidePrice: true,
+  },
+  {
     id: "evt_freshers",
     year: "—", month: "—", day: "—", dateObj: new Date("2025-01-01"), // past date to auto-close
     title: "Freshers' Orientation Week",
@@ -77,17 +88,6 @@ const EVENTS = [
     registrationRequired: true, isPaid: false, price: 0,
     hideDate: true, hidePrice: true,
   },
-  {
-    id: "evt_weekly",
-    year: "All", month: "Year", day: "Round", dateObj: new Date("2030-01-01"), // future date so it's open
-    title: "Weekly/Monthly Programmes",
-    time: "Various", location: "Yabatech Mosque & Open Air",
-    category: "Spiritual",
-    summary: "Regular classes and open-air lectures.",
-    desc: "Regular gatherings include Madrasah and Tahfeedh classes, Fajr Bayan, Fiqh classes, and Open Air Lectures.",
-    registrationRequired: false, isPaid: false, price: 0,
-    hideDate: true, hidePrice: true,
-  }
 ];
 
 /* helpers */
