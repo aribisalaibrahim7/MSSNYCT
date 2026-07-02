@@ -1,8 +1,29 @@
 "use client";
 
-import { Users, BookOpen, Calendar, MessageSquare, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Users, BookOpen, Calendar, MessageSquare, TrendingUp, Loader2 } from "lucide-react";
 
 export default function AdminOverview() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch stats", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
   return (
     <div className="space-y-8">
       <div>
@@ -11,10 +32,18 @@ export default function AdminOverview() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Students" value="5,240" icon={Users} trend="+12% this month" />
-        <StatCard title="Resources" value="1,120" icon={BookOpen} trend="+45 new" />
-        <StatCard title="Active Events" value="12" icon={Calendar} trend="3 next week" />
-        <StatCard title="Support Requests" value="18" icon={MessageSquare} trend="8 pending" />
+        {loading ? (
+          <div className="col-span-full flex justify-center py-12">
+            <Loader2 className="animate-spin text-primary" size={32} />
+          </div>
+        ) : (
+          <>
+            <StatCard title="Total Students" value={stats?.totalStudents || 0} icon={Users} trend="Live data" />
+            <StatCard title="Resources" value={stats?.totalResources || 0} icon={BookOpen} trend="Live data" />
+            <StatCard title="Active Events" value={stats?.activeEvents || 0} icon={Calendar} trend="Live data" />
+            <StatCard title="Pending Applications" value={stats?.pendingSupport || 0} icon={MessageSquare} trend="Live data" />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

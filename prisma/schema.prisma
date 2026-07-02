@@ -14,18 +14,18 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String                 @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?                @unique
   emailVerified DateTime?
   password      String?
-  role          Role      @default(STUDENT)
+  role          Role                   @default(STUDENT)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
   profile       Profile?
   resources     Resource[]
-  events        Event[]   @relation("UserEvents")
+  events        Event[]                @relation("UserEvents")
   accounts      Account[]
   sessions      Session[]
   committeeApps CommitteeApplication[]
@@ -68,24 +68,26 @@ model VerificationToken {
 }
 
 model Profile {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   phoneNumber String?
   department  String?
+  course      String?
   level       String?
-  matricNo    String?  @unique
+  sex         String?
+  matricNo    String? @unique
   skills      String?
-  digitalId   String?  @unique
+  digitalId   String? @unique
 }
 
 model Resource {
   id          String   @id @default(cuid())
   title       String
   description String?
-  category    String   // ACADEMIC, MEDIA, NEWSLETTER
+  category    String // ACADEMIC, MEDIA, NEWSLETTER
   fileUrl     String
-  type        String   // PDF, VIDEO, AUDIO, IMAGE
+  type        String // PDF, VIDEO, AUDIO, IMAGE
   author      User     @relation(fields: [authorId], references: [id])
   authorId    String
   createdAt   DateTime @default(now())
@@ -115,15 +117,32 @@ model EventNotification {
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  date        DateTime
-  location    String?
-  isPublic    Boolean  @default(true)
-  userIds     String[]
-  users       User[]   @relation("UserEvents")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String              @id @default(cuid())
+  title         String
+  description   String?
+  date          DateTime
+  location      String?
+  isPublic      Boolean             @default(true)
+  userIds       String[]
+  users         User[]              @relation("UserEvents")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   notifications EventNotification[]
+}
+
+model EventRegistration {
+  id               String   @id @default(cuid())
+  eventId          String
+  eventTitle       String
+  userId           String?
+  name             String
+  email            String
+  phone            String?
+  department       String?
+  level            String?
+  sex              String?
+  isPaid           Boolean  @default(false)
+  amountPaid       Float?
+  paymentReference String?
+  createdAt        DateTime @default(now())
 }

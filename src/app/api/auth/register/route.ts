@@ -5,7 +5,7 @@ import { sendSMS } from "@/lib/notifications";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role, phoneNumber } = await req.json();
+    const { name, email, password, role, phoneNumber, course, level, sex } = await req.json();
 
     if (!name || !email || !password) {
       return new NextResponse("Missing fields", { status: 400 });
@@ -30,6 +30,9 @@ export async function POST(req: Request) {
         profile: {
           create: {
             phoneNumber: phoneNumber || null,
+            course: course || null,
+            level: level || null,
+            sex: sex || null,
           }
         }
       },

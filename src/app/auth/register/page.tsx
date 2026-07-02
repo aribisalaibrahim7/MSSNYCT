@@ -4,13 +4,16 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, ArrowRight, Loader2, Shield, Phone } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, Loader2, Shield, Phone, BookOpen, GraduationCap, Users } from "lucide-react";
 import axios from "axios";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [course, setCourse] = useState("");
+  const [level, setLevel] = useState("");
+  const [sex, setSex] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("STUDENT");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +30,9 @@ export default function RegisterPage() {
         name,
         email,
         phoneNumber,
+        course,
+        level,
+        sex,
         password,
         role,
       });
@@ -90,6 +96,59 @@ export default function RegisterPage() {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Course / Department</label>
+          <div className="relative">
+            <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <input
+              type="text"
+              required
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              placeholder="Computer Science"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Level</label>
+            <div className="relative">
+              <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <select
+                required
+                className="w-full pl-12 pr-4 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                <option value="" disabled>Select Level</option>
+                <option value="ND I (100L)">ND I (100L)</option>
+                <option value="ND II (200L)">ND II (200L)</option>
+                <option value="HND I (300L)">HND I (300L)</option>
+                <option value="HND II (400L)">HND II (400L)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Sex</label>
+            <div className="relative">
+              <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <select
+                required
+                className="w-full pl-12 pr-4 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                value={sex}
+                onChange={(e) => setSex(e.target.value)}
+              >
+                <option value="" disabled>Select Sex</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
           </div>
         </div>
 
