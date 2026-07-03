@@ -4,8 +4,11 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
+  secret: nextAuthSecret,
   session: {
     strategy: "jwt",
   },

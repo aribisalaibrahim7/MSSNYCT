@@ -28,7 +28,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login");
+      router.replace(`/auth/login?callbackUrl=${encodeURIComponent("/profile")}`);
     }
     if (session?.user) {
       setFormData({
