@@ -11,6 +11,10 @@ export async function POST(req: Request) {
     const data = await req.json();
     const userId = (session.user as any).id;
 
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
     // Update User Name if provided
     if (data.name) {
       await prisma.user.update({
@@ -39,7 +43,15 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json(profile);
+    return NextResponse.json({
+      ...profile,
+      user: {
+        id: userId,
+        name: data.name || session?.user?.name || "",
+        email: session?.user?.email || "",
+        role: (session?.user as any)?.role || "STUDENT",
+      }
+    });
   } catch (error) {
     console.error("PROFILE_UPDATE_ERROR", error);
     return new NextResponse("Internal Error", { status: 500 });

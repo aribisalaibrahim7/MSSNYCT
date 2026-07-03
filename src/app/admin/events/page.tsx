@@ -73,6 +73,20 @@ export default function AdminEventsPage() {
     }
   };
 
+  const confirmCashPayment = async (registrationId: string) => {
+    try {
+      const res = await fetch("/api/events/registrations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: registrationId, isPaid: true, paymentReference: `CASH_CONFIRMED_${Date.now()}` }),
+      });
+      if (!res.ok) throw new Error("Failed to confirm payment");
+      await fetchData();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
   useEffect(() => { fetchData(); }, []);
 
   // Event filter options
@@ -314,6 +328,14 @@ export default function AdminEventsPage() {
                                   <p className="font-mono text-xs font-semibold break-all">{r.paymentReference}</p>
                                 </div>
                               </div>
+                            )}
+                            {!r.isPaid && (
+                              <button
+                                onClick={() => confirmCashPayment(r.id)}
+                                className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+                              >
+                                Confirm Cash Payment
+                              </button>
                             )}
                           </div>
                         </td>

@@ -175,6 +175,7 @@ export default function EventsHubPage() {
   const [selectedEvent, setSelectedEvent] = useState<typeof EVENTS[0] | null>(null);
   const [showRegForm, setShowRegForm] = useState(false);
   const [showSuccess, setShowSuccess] = useState<{ title: string; email: string } | null>(null);
+  const [paymentMode, setPaymentMode] = useState<"paystack" | "cash">("paystack");
 
   /* registration form state */
   const [regForm, setRegForm] = useState({
@@ -227,13 +228,11 @@ export default function EventsHubPage() {
       return;
     }
 
-    if (selectedEvent.isPaid) {
-      // Go to payment (Paystack SDK will trigger via useEffect)
+    if (selectedEvent.isPaid && paymentMode === "paystack") {
       setShowRegForm(false);
       setPaystackEvent(selectedEvent);
     } else {
-      // Free — process directly
-      await processRegistration(selectedEvent, "FREE_REG");
+      await processRegistration(selectedEvent, paymentMode === "cash" ? "CASH_PENDING" : "FREE_REG");
     }
   };
 
@@ -250,6 +249,8 @@ export default function EventsHubPage() {
         eventPrice: evt.price,
         isPaid: evt.isPaid,
         paymentReference: payRef,
+        paymentMethod: paymentMode,
+        paymentStatus: paymentMode === "cash" ? "pending" : "paid",
         customerEmail: regForm.email || session?.user?.email,
         customerName: regForm.fullName || session?.user?.name || "Member",
         department: regForm.department,
@@ -300,8 +301,16 @@ export default function EventsHubPage() {
                 },
               ],
             },
-            callback: (res: any) => {
+            callback: async (res: any) => {
               if (res.status === "success" || res.message === "Approved") {
+                try {
+                  await axios.post("/api/events/verify-payment", {
+                    reference: res.reference,
+                    email: regForm.email || session?.user?.email,
+                  });
+                } catch (verifyError) {
+                  console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
+                }
                 processRegistration(paystackEvent, res.reference);
               } else {
                 showAlert("Payment Failed", "Payment could not be confirmed.", "error");
@@ -837,7 +846,7 @@ export default function EventsHubPage() {
                 >
                   {regLoading ? (
                     <><Loader2 size={18} className="animate-spin" /> Processing…</>
-                  ) : selectedEvent.isPaid ? (
+                  ) : selectedEvent.isPaid && paymentMode === "paystack" ? (
                     `Continue to Payment · ₦${selectedEvent.price.toLocaleString()}`
                   ) : (
                     "Complete Registration"

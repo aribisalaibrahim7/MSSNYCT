@@ -14,3 +14,29 @@ export async function GET() {
     );
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const { id, isPaid, amountPaid, paymentReference } = await req.json();
+
+    if (!id) {
+      return new NextResponse(JSON.stringify({ error: "Registration id is required" }), { status: 400 });
+    }
+
+    const registration = await prisma.eventRegistration.update({
+      where: { id },
+      data: {
+        isPaid: Boolean(isPaid),
+        amountPaid: amountPaid ?? undefined,
+        paymentReference: paymentReference ?? undefined,
+      },
+    });
+
+    return NextResponse.json(registration);
+  } catch (error: any) {
+    return new NextResponse(
+      JSON.stringify({ error: error.message || "Failed to update registration" }),
+      { status: 500 }
+    );
+  }
+}

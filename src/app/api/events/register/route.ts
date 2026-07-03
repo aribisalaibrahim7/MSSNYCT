@@ -1,13 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { sendReceiptEmail } from "@/lib/receipt";
 
 export async function POST(req: Request) {
   try {
     const {
       eventId, eventTitle, eventPrice, isPaid, paymentReference,
-      customerEmail, customerName, phone, department, level, sex
+      customerEmail, customerName, phone, department, level, sex,
+      paymentMethod = "paystack", paymentStatus = "paid"
     } = await req.json();
+
+    const normalizedMethod = String(paymentMethod || "paystack").toLowerCase();
+    const isCashPending = normalizedMethod === "cash";
+    const isPaidRegistration = !!isPaid && !isCashPending;
+    const normalizedStatus = isCashPending ? "pending" : (paymentStatus || "paid");
 
     if (!eventId || !eventTitle) {
       return new NextResponse("Missing fields", { status: 400 });
@@ -19,6 +26,7 @@ export async function POST(req: Request) {
     console.log("EVENT_REGISTRATION_RECEIVED:", { eventId, eventTitle, isPaid, paymentReference, email });
 
     // ── Save to EventRegistration table ──────────────────────────────────────
+    let receiptInfo: any = null;
     try {
       const existing = await prisma.eventRegistration.findFirst({
         where: { eventId, email },
@@ -27,7 +35,7 @@ export async function POST(req: Request) {
       if (!existing) {
         const linkedUser = await prisma.user.findUnique({ where: { email } });
 
-        await prisma.eventRegistration.create({
+        const created = await prisma.eventRegistration.create({
           data: {
             eventId,
             eventTitle,
@@ -37,12 +45,15 @@ export async function POST(req: Request) {
             department:       department       || null,
             level:            level            || null,
             sex:              sex              || null,
-            isPaid:           !!isPaid,
-            amountPaid:       isPaid && eventPrice ? Number(eventPrice) : null,
+            isPaid:           isPaidRegistration,
+            amountPaid:       isPaidRegistration && eventPrice ? Number(eventPrice) : null,
             paymentReference: paymentReference || null,
             userId:           linkedUser?.id   ?? null,
           },
         });
+        receiptInfo = created;
+      } else {
+        receiptInfo = existing;
       }
     } catch (dbError) {
       console.error("EventRegistration DB save failed:", dbError);
@@ -94,6 +105,17 @@ export async function POST(req: Request) {
           to: email,
           subject: `Registration Confirmed: ${eventTitle}`,
           html: emailContent,
+        });
+
+        await sendReceiptEmail({
+          to: email,
+          name,
+          eventTitle,
+          amountPaid: isPaidRegistration && eventPrice ? Number(eventPrice) : null,
+          paymentReference: paymentReference || null,
+          paymentMethod: normalizedMethod,
+          paymentStatus: isPaidRegistration ? normalizedStatus : "free",
+          createdAt: receiptInfo?.createdAt || new Date(),
         });
 
         // Email to organisation
