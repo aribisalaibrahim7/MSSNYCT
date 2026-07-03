@@ -1,117 +1,157 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
-import AuthLayout from "@/components/auth/AuthLayout";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, Lock, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
 
-function ResetPasswordContent() {
+function ResetPasswordForm() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const params = useSearchParams();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const token = params.get("token") || "";
-  const email = params.get("email") || "";
+  
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
-  useEffect(() => {
-    if (!token || !email) {
-      setError("This reset link is invalid or expired.");
-    }
-  }, [token, email]);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!token || !email) {
+    return (
+      <div className="text-center py-6">
+        <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Invalid Link</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          This password reset link is invalid or missing required parameters.
+        </p>
+        <Link href="/auth/forgot-password" className="text-sm font-semibold text-primary hover:underline">
+          Request a new link
+        </Link>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
     setLoading(true);
     setError("");
+
     try {
-      await axios.post("/api/auth/reset-password", { email, token, password });
-      setSuccess("Password reset successfully. Redirecting to login...");
-      setTimeout(() => router.push("/auth/login"), 1500);
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 3000);
+      } else {
+        setError(data.error || "Something went wrong.");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to reset password.");
+      setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center py-6"
+      >
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4">
+          <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <h3 className="text-lg font-medium text-foreground mb-2">Password reset successful</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          You can now log in with your new password. Redirecting you to login...
+        </p>
+        <Link href="/auth/login" className="text-sm font-semibold text-primary hover:underline">
+          Go to login now
+        </Link>
+      </motion.div>
+    );
+  }
+
   return (
-    <AuthLayout>
-      <h1 className="text-3xl font-heading font-bold mb-2">Reset Password</h1>
-      <p className="text-muted-foreground mb-8">Choose a new password for your account.</p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">New Password</label>
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              className="w-full pl-12 pr-12 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-foreground">
+          New password
+        </label>
+        <div className="mt-1 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Lock className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           </div>
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="appearance-none block w-full pl-10 pr-10 px-3 py-2.5 border border-border rounded-xl shadow-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm bg-slate-50 dark:bg-slate-950"
+            placeholder="••••••••"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
-
-        <div className="space-y-1">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Confirm Password</label>
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input
-              type={showConfirm ? "text" : "password"}
-              required
-              className="w-full pl-12 pr-12 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        </div>
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        {success && <p className="text-sm text-emerald-600">{success}</p>}
-
-        <button disabled={loading} className="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-xl shadow-primary/20 disabled:opacity-70">
-          {loading ? <Loader2 className="animate-spin" /> : "Save Password"}
-          {!loading && <ArrowRight size={20} />}
-        </button>
-      </form>
-
-      <div className="mt-8 text-center">
-        <Link href="/auth/login" className="text-sm text-primary font-semibold hover:underline">Back to login</Link>
       </div>
-    </AuthLayout>
+
+      {error && (
+        <div className="text-sm text-red-500 font-medium text-center bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-100 dark:border-red-900/50">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <button
+          type="submit"
+          disabled={loading || !password}
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Reset password"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-export default function ResetPasswordPage() {
+export default function ResetPassword() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Loading reset form…</p></div>}>
-      <ResetPasswordContent />
-    </Suspense>
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Link href="/auth/login" className="flex items-center justify-center gap-2 text-sm font-semibold text-primary mb-8 hover:underline">
+          <ArrowLeft size={16} /> Back to login
+        </Link>
+        <h2 className="text-center text-3xl font-heading font-bold text-foreground">Set new password</h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          Enter your new password below.
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white dark:bg-slate-900 py-8 px-4 shadow-sm sm:rounded-2xl sm:px-10 border border-border">
+          <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" /></div>}>
+            <ResetPasswordForm />
+          </Suspense>
+        </div>
+      </div>
+    </main>
   );
 }

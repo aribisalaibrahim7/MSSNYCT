@@ -329,7 +329,7 @@ export default function AdminEventsPage() {
                                 </div>
                               </div>
                             )}
-                            {!r.isPaid && (
+                            {!r.isPaid && r.paymentReference === "CASH_PENDING" && (
                               <button
                                 onClick={() => confirmCashPayment(r.id)}
                                 className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"

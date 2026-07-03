@@ -73,7 +73,6 @@ export default function LoginPage() {
         <div className="space-y-1">
           <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Password</label>
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type={showPassword ? "text" : "password"}
               required
@@ -82,6 +81,9 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Lock size={18} />
+            </div>
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
@@ -104,7 +106,7 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-8 text-center space-y-2">
-        <Link href="/auth/reset-password" className="text-sm text-primary font-semibold hover:underline">
+        <Link href="/auth/forgot-password" className="text-sm text-primary font-semibold hover:underline">
           Forgot password?
         </Link>
         <p className="text-sm text-muted-foreground">

@@ -30,14 +30,18 @@ export async function POST(req: Request) {
         userId,
         phoneNumber: data.phoneNumber,
         department: data.department,
+        course: data.course,
         level: data.level,
+        sex: data.sex,
         matricNo: data.matricNo,
         skills: data.skills
       },
       update: {
         phoneNumber: data.phoneNumber,
         department: data.department,
+        course: data.course,
         level: data.level,
+        sex: data.sex,
         matricNo: data.matricNo,
         skills: data.skills
       }

@@ -46,7 +46,7 @@ export async function POST(req: Request) {
             level:            level            || null,
             sex:              sex              || null,
             isPaid:           isPaidRegistration,
-            amountPaid:       isPaidRegistration && eventPrice ? Number(eventPrice) : null,
+            amountPaid:       (isPaidRegistration || isCashPending) && eventPrice ? Number(eventPrice) : null,
             paymentReference: paymentReference || null,
             userId:           linkedUser?.id   ?? null,
           },

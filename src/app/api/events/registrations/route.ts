@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { sendReceiptEmail } from "@/lib/receipt";
 
 export async function GET() {
   try {
@@ -31,6 +32,24 @@ export async function PATCH(req: Request) {
         paymentReference: paymentReference ?? undefined,
       },
     });
+
+    // If marked as paid with a CASH reference, send the receipt email
+    if (registration.isPaid && registration.paymentReference?.startsWith("CASH")) {
+      try {
+        await sendReceiptEmail({
+          to: registration.email,
+          name: registration.name,
+          eventTitle: registration.eventTitle,
+          amountPaid: registration.amountPaid,
+          paymentReference: registration.paymentReference,
+          paymentMethod: "cash",
+          paymentStatus: "paid",
+          createdAt: registration.createdAt,
+        });
+      } catch (err) {
+        console.error("Failed to send cash receipt email:", err);
+      }
+    }
 
     return NextResponse.json(registration);
   } catch (error: any) {

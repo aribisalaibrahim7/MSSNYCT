@@ -21,7 +21,9 @@ export default function ProfilePage() {
     name: "",
     phoneNumber: "",
     department: "",
+    course: "",
     level: "",
+    sex: "",
     matricNo: "",
     skills: ""
   });
@@ -35,7 +37,9 @@ export default function ProfilePage() {
         name: session.user.name || "",
         phoneNumber: (session.user as any).profile?.phoneNumber || "",
         department: (session.user as any).profile?.department || "",
+        course: (session.user as any).profile?.course || "",
         level: (session.user as any).profile?.level || "",
+        sex: (session.user as any).profile?.sex || "",
         matricNo: (session.user as any).profile?.matricNo || "",
         skills: (session.user as any).profile?.skills || ""
       });
@@ -174,12 +178,28 @@ export default function ProfilePage() {
                              onChange={(v: string) => setFormData({...formData, department: v})}
                            />
                            <EditableItem 
+                             icon={BookOpen} 
+                             label="Course" 
+                             value={formData.course} 
+                             placeholder="e.g. Computer Science"
+                             isEditing={isEditing}
+                             onChange={(v: string) => setFormData({...formData, course: v})}
+                           />
+                           <EditableItem 
                              icon={Shield} 
                              label="Level" 
                              value={formData.level} 
                              placeholder="e.g. 400L"
                              isEditing={isEditing}
                              onChange={(v: string) => setFormData({...formData, level: v})}
+                           />
+                           <EditableItem 
+                             icon={User} 
+                             label="Sex" 
+                             value={formData.sex} 
+                             placeholder="e.g. Male or Female"
+                             isEditing={isEditing}
+                             onChange={(v: string) => setFormData({...formData, sex: v})}
                            />
                            <EditableItem 
                              icon={Mail} 

@@ -1,18 +1,20 @@
 "use client";
 
 import Navbar from "@/components/layout/Navbar";
-import {
-  MapPin, Clock, X, CreditCard, ShieldCheck,
-  Loader2, CheckCircle2, Share2, ChevronRight, Sparkles,
-  Mail, Phone, User, BookOpen, GraduationCap, Users,
+import { 
+  Calendar, MapPin, Clock, Tag, Search, Filter, 
+  ChevronRight, Users, Sparkles, AlertCircle, CheckCircle2,
+  X, Loader2, CreditCard, Mail, Phone, User, BookOpen, GraduationCap,
   CalendarX, Banknote, Star, Zap
 } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useAlert } from "@/components/providers/AlertProvider";
+import { usePaystackPayment } from "react-paystack";
 
 /* ------------------------------------------------------------------ */
 /*  Event data                                                          */
@@ -276,61 +278,50 @@ export default function EventsHubPage() {
   };
 
   /* -------- Paystack Payment Integration -------- */
+  const paystackConfig = {
+    reference: "MSSN_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+    email: regForm.email || session?.user?.email || "student@mssnyabatech.com",
+    amount: (paystackEvent?.price || 0) * 100, // Paystack calculates in kobo
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_c31f49d32b5f7cf8cf59600e0084c7b80cba000d",
+    currency: "NGN",
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Event Title",
+          variable_name: "event_title",
+          value: paystackEvent?.title || "",
+        },
+      ],
+    },
+  };
+
+  const initializePayment = usePaystackPayment(paystackConfig);
+
   useEffect(() => {
-    if (paystackEvent && typeof window !== "undefined") {
-      const initPaystack = () => {
-        if (!(window as any).PaystackPop) {
-          showAlert("Error", "Payment gateway is still loading. Please try again in a few seconds.", "error");
-          setPaystackEvent(null);
-          return;
-        }
-
-        try {
-          const handler = (window as any).PaystackPop.setup({
-            key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_c31f49d32b5f7cf8cf59600e0084c7b80cba000d", // Test key fallback
-            email: regForm.email || session?.user?.email || "student@mssnyabatech.com",
-            amount: paystackEvent.price * 100, // Paystack calculates in kobo
-            ref: "MSSN_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
-            currency: "NGN",
-            metadata: {
-              custom_fields: [
-                {
-                  display_name: "Event Title",
-                  variable_name: "event_title",
-                  value: paystackEvent.title,
-                },
-              ],
-            },
-            callback: async (res: any) => {
-              if (res.status === "success" || res.message === "Approved") {
-                try {
-                  await axios.post("/api/events/verify-payment", {
-                    reference: res.reference,
-                    email: regForm.email || session?.user?.email,
-                  });
-                } catch (verifyError) {
-                  console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
-                }
-                processRegistration(paystackEvent, res.reference);
-              } else {
-                showAlert("Payment Failed", "Payment could not be confirmed.", "error");
-                setPaystackEvent(null);
+    if (paystackEvent) {
+      initializePayment({
+        onSuccess: (res: any) => {
+          (async () => {
+            if (res.status === "success" || res.message === "Approved") {
+              try {
+                await axios.post("/api/events/verify-payment", {
+                  reference: res.reference,
+                  email: regForm.email || session?.user?.email,
+                });
+              } catch (verifyError) {
+                console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
               }
-            },
-            onClose: () => {
-              // User closed the widget
+              processRegistration(paystackEvent, res.reference);
+            } else {
+              showAlert("Payment Failed", "Payment could not be confirmed.", "error");
               setPaystackEvent(null);
-            },
-          });
-          handler.openIframe();
-        } catch (err) {
-          console.error(err);
-          showAlert("Error", "Failed to initialize payment gateway.", "error");
+            }
+          })();
+        },
+        onClose: () => {
           setPaystackEvent(null);
         }
-      };
-
-      initPaystack();
+      });
     }
   }, [paystackEvent]);
 
