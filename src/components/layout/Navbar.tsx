@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X, User, ShieldCheck } from "lucide-react";
@@ -38,9 +39,9 @@ export default function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <span className="text-white font-bold text-xl">M</span>
+        <Link href="/" className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-lg shadow-primary/20">
+            <Image src="/mssn-logo.png" alt="MSSN Logo" width={40} height={40} className="w-full h-full object-cover" />
           </div>
           <div className="hidden sm:block">
             <h1 className="text-foreground font-heading font-bold text-lg leading-tight">

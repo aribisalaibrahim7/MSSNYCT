@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Lock, ArrowRight, Loader2, Shield, Phone, BookOpen, GraduationCap, Users, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
+import { YABATECH_DEPARTMENTS } from "@/lib/departments";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -104,14 +105,17 @@ export default function RegisterPage() {
           <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Course / Department</label>
           <div className="relative">
             <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input
-              type="text"
+            <select
               required
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              placeholder="Computer Science"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               value={course}
               onChange={(e) => setCourse(e.target.value)}
-            />
+            >
+              <option value="" disabled>-- Select Department --</option>
+              {YABATECH_DEPARTMENTS.map((dept) => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
           </div>
         </div>
 

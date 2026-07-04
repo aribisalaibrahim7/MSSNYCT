@@ -15,6 +15,7 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useAlert } from "@/components/providers/AlertProvider";
 import dynamic from "next/dynamic";
+import { YABATECH_DEPARTMENTS } from "@/lib/departments";
 
 const PaystackHandler = dynamic(() => import("@/components/events/PaystackHandler"), { ssr: false });
 
@@ -102,15 +103,7 @@ const LEVELS = [
   "ND I (100L)", "ND II (200L)", "HND I (300L)", "HND II (400L)"
 ];
 
-const DEPARTMENTS = [
-  "Computer Science", "Mass Communication", "Business Admin",
-  "Accountancy", "Electrical Engineering", "Mechanical Engineering",
-  "Civil Engineering", "Estate Management", "Architecture",
-  "Food Technology", "Library Science", "Statistics",
-  "Urban & Regional Planning", "Banking & Finance",
-  "Office Technology & Management", "Science Laboratory Technology",
-  "Hospitality Management", "Printing Technology", "Other"
-];
+const DEPARTMENTS = YABATECH_DEPARTMENTS;
 
 /* category accent colours */
 const categoryColour: Record<string, string> = {
@@ -189,6 +182,10 @@ export default function EventsHubPage() {
 
   /* Paystack / payment */
   const [paystackEvent, setPaystackEvent] = useState<typeof EVENTS[0] | null>(null);
+  // Keep a ref so Paystack callback (which closes over old state) always sees the current event
+  const paystackEventRef = useRef<typeof EVENTS[0] | null>(null);
+  // Keep a ref for regForm too
+  const regFormRef = useRef(regForm);
 
   const now = new Date();
 
@@ -204,6 +201,9 @@ export default function EventsHubPage() {
   const openCount = EVENTS.filter((e) => !isClosed(e)).length;
   const paidCount = EVENTS.filter((e) => e.isPaid && !isClosed(e)).length;
 
+  // Keep regFormRef in sync so Paystack callback always has latest values
+  useEffect(() => { regFormRef.current = regForm; }, [regForm]);
+
   /* -------- open registration flow -------- */
   const handleRegisterClick = (evt: typeof EVENTS[0]) => {
     if (isClosed(evt)) return;
@@ -215,8 +215,8 @@ export default function EventsHubPage() {
       showAlert("Already Registered", `You are already registered for "${evt.title}".`, "success");
       return;
     }
-    // pre-fill email from session
-    setRegForm({ fullName: "", department: "", level: "", sex: "", phone: "", email: session.user?.email || "" });
+    // pre-fill name and email from session — email is locked
+    setRegForm({ fullName: session.user?.name || "", department: "", level: "", sex: "", phone: "", email: session.user?.email || "" });
     setSelectedEvent(evt);
     setShowRegForm(true);
   };
@@ -234,6 +234,8 @@ export default function EventsHubPage() {
 
     if (selectedEvent.isPaid && paymentMode === "paystack") {
       setShowRegForm(false);
+      paystackEventRef.current = selectedEvent; // store in ref for stale-closure safety
+      regFormRef.current = regForm;             // store form data in ref too
       setPaystackEvent(selectedEvent);
     } else {
       await processRegistration(selectedEvent, paymentMode === "cash" ? "CASH_PENDING" : "FREE_REG");
@@ -244,6 +246,8 @@ export default function EventsHubPage() {
   const processRegistration = async (evt: typeof EVENTS[0], payRef: string) => {
     setRegLoading(true);
     setLoadingId(evt.id);
+    // Always use ref values as fallback to avoid stale closure on Paystack callback
+    const activeForm = regFormRef.current || regForm;
     try {
       const res = await axios.post("/api/events/register", {
         eventId: evt.id,
@@ -255,12 +259,12 @@ export default function EventsHubPage() {
         paymentReference: payRef,
         paymentMethod: paymentMode,
         paymentStatus: paymentMode === "cash" ? "pending" : "paid",
-        customerEmail: regForm.email || session?.user?.email,
-        customerName: regForm.fullName || session?.user?.name || "Member",
-        department: regForm.department,
-        level: regForm.level,
-        sex: regForm.sex,
-        phone: regForm.phone,
+        customerEmail: activeForm.email || regForm.email || session?.user?.email,
+        customerName: activeForm.fullName || regForm.fullName || session?.user?.name || "Member",
+        department: activeForm.department || regForm.department,
+        level: activeForm.level || regForm.level,
+        sex: activeForm.sex || regForm.sex,
+        phone: activeForm.phone || regForm.phone,
       });
 
       if (res.status === 200 || res.data?.success !== false) {
@@ -300,18 +304,26 @@ export default function EventsHubPage() {
   const handlePaystackSuccess = (res: any) => {
     (async () => {
       if (res.status === "success" || res.message === "Approved") {
+        // Use ref to get event — avoids stale-closure after state resets
+        const evt = paystackEventRef.current || paystackEvent;
+        if (!evt) {
+          console.error("PAYSTACK_SUCCESS: paystackEvent is null — registration skipped!");
+          showAlert("Payment Received", "Payment succeeded but registration could not be saved. Contact support with your reference.", "error");
+          return;
+        }
         try {
           await axios.post("/api/events/verify-payment", {
             reference: res.reference,
-            email: regForm.email || session?.user?.email,
+            email: regFormRef.current?.email || regForm.email || session?.user?.email,
           });
         } catch (verifyError) {
           console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
         }
-        processRegistration(paystackEvent!, res.reference);
+        processRegistration(evt, res.reference);
       } else {
         showAlert("Payment Failed", "Payment could not be confirmed.", "error");
         setPaystackEvent(null);
+        paystackEventRef.current = null;
       }
     })();
   };
@@ -319,6 +331,7 @@ export default function EventsHubPage() {
   const handlePaystackClose = () => {
     showAlert("Cancelled", "Payment was cancelled.", "info");
     setPaystackEvent(null);
+    paystackEventRef.current = null;
   };
 
   /* ------------------------------------------------------------------ */
@@ -734,19 +747,20 @@ export default function EventsHubPage() {
                     />
                   </div>
 
-                  {/* Email */}
+                  {/* Email — locked to session */}
                   <div className="space-y-1.5">
                     <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                       <Mail size={11} /> Email Address
                     </label>
-                    <input
-                      required
-                      type="email"
-                      placeholder="you@example.com"
-                      value={regForm.email}
-                      onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                      className="w-full px-4 py-3.5 rounded-2xl border border-border bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/60"
-                    />
+                    <div className="relative">
+                      <input
+                        readOnly
+                        type="email"
+                        value={regForm.email}
+                        className="w-full px-4 py-3.5 rounded-2xl border border-border bg-slate-100 dark:bg-slate-700/50 outline-none text-sm text-muted-foreground cursor-not-allowed select-none"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Locked</span>
+                    </div>
                   </div>
 
                   {/* Phone */}
