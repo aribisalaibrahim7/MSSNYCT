@@ -1,29 +1,40 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePaystackPayment } from "react-paystack";
 
-export default function PaystackHandler({ 
-  config, 
-  onSuccess, 
+export default function PaystackHandler({
+  config,
+  onSuccess,
   onClose,
-  trigger
-}: { 
-  config: any; 
-  onSuccess: (res: any) => void; 
+  trigger,
+}: {
+  config: any;
+  onSuccess: (res: any) => void;
   onClose: () => void;
   trigger: boolean;
 }) {
-  const initializePayment = usePaystackPayment(config);
-
   useEffect(() => {
-    if (trigger) {
-      initializePayment({
-        onSuccess,
-        onClose
-      });
+    if (!trigger || typeof window === "undefined") return;
+
+    const win = window as typeof window & { PaystackPop?: any };
+    if (!win.PaystackPop) {
+      onClose();
+      return;
     }
-  }, [trigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handler = win.PaystackPop.setup({
+      key: config.publicKey,
+      email: config.email,
+      amount: config.amount,
+      ref: config.reference,
+      currency: config.currency || "NGN",
+      metadata: config.metadata,
+      callback: (res: any) => onSuccess(res),
+      onClose: () => onClose(),
+    });
+
+    handler.openIframe();
+  }, [config, onSuccess, onClose, trigger]);
 
   return null;
 }
