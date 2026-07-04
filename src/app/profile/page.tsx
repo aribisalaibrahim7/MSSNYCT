@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { User, Mail, Shield, Download, MapPin, GraduationCap, Phone, Edit3, Save, X, Loader2, Sparkles } from "lucide-react";
+import { User, Mail, Shield, Download, MapPin, GraduationCap, Phone, Edit3, Save, X, Loader2, Sparkles, BookOpen } from "lucide-react";
 import axios from "axios";
 import { useAlert } from "@/components/providers/AlertProvider";
 

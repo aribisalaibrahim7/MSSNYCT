@@ -5,7 +5,7 @@ import {
   Calendar, MapPin, Clock, Tag, Search, Filter, 
   ChevronRight, Users, Sparkles, AlertCircle, CheckCircle2,
   X, Loader2, CreditCard, Mail, Phone, User, BookOpen, GraduationCap,
-  CalendarX, Banknote, Star, Zap
+  CalendarX, Banknote, Star, Zap, Share2
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,9 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useAlert } from "@/components/providers/AlertProvider";
-import { usePaystackPayment } from "react-paystack";
+import dynamic from "next/dynamic";
+
+const PaystackHandler = dynamic(() => import("@/components/events/PaystackHandler"), { ssr: false });
 
 /* ------------------------------------------------------------------ */
 /*  Event data                                                          */
@@ -295,41 +297,44 @@ export default function EventsHubPage() {
     },
   };
 
-  const initializePayment = usePaystackPayment(paystackConfig);
-
-  useEffect(() => {
-    if (paystackEvent) {
-      initializePayment({
-        onSuccess: (res: any) => {
-          (async () => {
-            if (res.status === "success" || res.message === "Approved") {
-              try {
-                await axios.post("/api/events/verify-payment", {
-                  reference: res.reference,
-                  email: regForm.email || session?.user?.email,
-                });
-              } catch (verifyError) {
-                console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
-              }
-              processRegistration(paystackEvent, res.reference);
-            } else {
-              showAlert("Payment Failed", "Payment could not be confirmed.", "error");
-              setPaystackEvent(null);
-            }
-          })();
-        },
-        onClose: () => {
-          setPaystackEvent(null);
+  const handlePaystackSuccess = (res: any) => {
+    (async () => {
+      if (res.status === "success" || res.message === "Approved") {
+        try {
+          await axios.post("/api/events/verify-payment", {
+            reference: res.reference,
+            email: regForm.email || session?.user?.email,
+          });
+        } catch (verifyError) {
+          console.error("PAYMENT_VERIFICATION_FAILED", verifyError);
         }
-      });
-    }
-  }, [paystackEvent]);
+        processRegistration(paystackEvent!, res.reference);
+      } else {
+        showAlert("Payment Failed", "Payment could not be confirmed.", "error");
+        setPaystackEvent(null);
+      }
+    })();
+  };
+
+  const handlePaystackClose = () => {
+    showAlert("Cancelled", "Payment was cancelled.", "info");
+    setPaystackEvent(null);
+  };
 
   /* ------------------------------------------------------------------ */
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 relative">
       <FloatingOrbs />
       <Navbar />
+      
+      {paystackEvent && (
+        <PaystackHandler
+          config={paystackConfig}
+          trigger={!!paystackEvent}
+          onSuccess={handlePaystackSuccess}
+          onClose={handlePaystackClose}
+        />
+      )}
 
       {/* ======================== HERO ======================== */}
       <section className="relative pt-36 pb-20 px-6 overflow-hidden">
