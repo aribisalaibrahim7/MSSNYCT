@@ -58,21 +58,6 @@ export default function Hero() {
               Explore Vault
             </Link>
           </div>
-
-          <div className="mt-12 grid grid-cols-3 gap-8">
-            <div>
-              <div className="text-3xl font-bold text-foreground">5K+</div>
-              <div className="text-sm text-muted-foreground">Students</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-foreground">1K+</div>
-              <div className="text-sm text-muted-foreground">Resources</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-foreground">50+</div>
-              <div className="text-sm text-muted-foreground">Events/Year</div>
-            </div>
-          </div>
         </motion.div>
 
         <motion.div
