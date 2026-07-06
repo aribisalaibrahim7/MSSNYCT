@@ -29,28 +29,47 @@ export async function POST(req: Request) {
 
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+    let emailSent = false;
+    let emailError = "";
 
-      await transporter.sendMail({
-        from: `"MSSN Hub" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: "Reset your MSSN password",
-        html: `<p>Use the link below to reset your password.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-      });
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+
+        await transporter.sendMail({
+          from: `"MSSN Hub" <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: "Reset your MSSN password",
+          html: `<p>Use the link below to reset your password.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+        });
+        emailSent = true;
+      } catch (err: any) {
+        console.error("FORGOT_PASSWORD_EMAIL_ERROR", err);
+        emailError = err.message || String(err);
+      }
     }
 
-    return NextResponse.json({ success: true, message: "If the email exists, a reset link has been sent.", resetUrl });
+    // Always log the link to console so admins can easily copy it from Vercel / server logs
+    console.log(`[PASSWORD_RESET_LINK] Email: ${email} | Link: ${resetUrl}`);
+
+    if (process.env.SMTP_USER && !emailSent) {
+      return NextResponse.json({
+        success: false,
+        error: `Email sending failed (SMTP: ${emailError}). Link is logged on server console.`
+      }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, message: "If the email exists, a reset link has been generated.", resetUrl });
   } catch (error: any) {
     console.error("FORGOT_PASSWORD_ERROR", error);
-    return new NextResponse(JSON.stringify({ error: error.message || "Failed to reset password" }), { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to reset password" }, { status: 500 });
   }
 }

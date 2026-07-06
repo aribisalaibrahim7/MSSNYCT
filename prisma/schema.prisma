@@ -155,3 +155,15 @@ model EventRegistration {
   paymentReference String?
   createdAt        DateTime @default(now())
 }
+
+model SupportRequest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  category  String
+  message   String
+  status    String   @default("PENDING") // PENDING, RESOLVED
+  createdAt DateTime @default(now())
+}
+

@@ -23,18 +23,18 @@ const PaystackHandler = dynamic(() => import("@/components/events/PaystackHandle
 /*  Event data                                                          */
 /* ------------------------------------------------------------------ */
 const now = new Date();
-const dawahCampClosed = now > new Date("2026-07-20T23:59:59+01:00");
+const dawahCampClosed = now > new Date("2026-07-19T23:59:59+01:00");
 const dawahCampPrice = now <= new Date("2026-07-05T23:59:59+01:00") ? 3500 : 4000;
 
 const EVENTS = [
   {
     id: "evt_dawah",
-    year: 2026, month: "JUL", day: "20", dateObj: new Date("2026-07-20T23:59:59+01:00"),
+    year: 2026, month: "JUL", day: "17-19", dateObj: new Date("2026-07-19T23:59:59+01:00"),
     title: "Da'wah Camp",
-    time: "Day & Night", location: "Yabatech Mosque",
+    time: "Friday 17th - Sunday 19th", location: "Yabatech Mosque",
     category: "Retreat",
     summary: "A complete Islamic lifestyle experience retreat.",
-    desc: "A much-anticipated spiritual retreat traditionally organized immediately after the first-semester examinations. It is designed to provide complete Islamic lifestyle experiences through day and night sessions.",
+    desc: "A much-anticipated spiritual retreat organized immediately after the first-semester examinations. It is designed to provide complete Islamic lifestyle experiences through day and night sessions.",
     registrationRequired: true, isPaid: true, price: dawahCampPrice,
     hideDate: false, hidePrice: false,
   },

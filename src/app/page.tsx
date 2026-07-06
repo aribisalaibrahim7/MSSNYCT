@@ -177,28 +177,45 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
 }
 
 /* ------------------------------------------------------------------ */
-/* Stats */
-/* ------------------------------------------------------------------ */
-const stats = [
-  { value: 500, suffix: "+", label: "Members Registered" },
-  { value: 12, suffix: "", label: "Active Committees" },
-  { value: 30, suffix: "+", label: "Annual Programmes" },
-  { value: 5, suffix: "★", label: "Years of Excellence" },
-];
-
 /* ------------------------------------------------------------------ */
 /* Main Page */
 /* ------------------------------------------------------------------ */
 export default function Home() {
   const [images, setImages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [liveStats, setLiveStats] = useState({
+    membersCount: 500,
+    activeCommittees: 12,
+    annualProgrammes: 30,
+    yearsOfExcellence: 5
+  });
 
   useEffect(() => {
     axios.get("/api/gallery")
       .then((res) => setImages(res.data.slice(0, 4)))
       .catch(() => {})
       .finally(() => setIsLoading(false));
+
+    axios.get("/api/stats")
+      .then((res) => {
+        if (res.data) {
+          setLiveStats({
+            membersCount: res.data.membersCount || 500,
+            activeCommittees: res.data.activeCommittees || 12,
+            annualProgrammes: res.data.annualProgrammes || 30,
+            yearsOfExcellence: res.data.yearsOfExcellence || 5
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to load stats", err));
   }, []);
+
+  const statsItems = [
+    { value: liveStats.membersCount, suffix: "+", label: "Members Registered" },
+    { value: liveStats.activeCommittees, suffix: "", label: "Active Committees" },
+    { value: liveStats.annualProgrammes, suffix: "+", label: "Annual Programmes" },
+    { value: liveStats.yearsOfExcellence, suffix: "★", label: "Years of Excellence" },
+  ];
 
   return (
     <main className="min-h-screen bg-background">
@@ -206,19 +223,19 @@ export default function Home() {
       <Hero />
 
       {/* ===== Stats Strip ===== */}
-      <section className="py-14 bg-primary relative overflow-hidden">
+      <section className="py-16 bg-primary relative overflow-hidden shadow-2xl">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute top-0 left-0 w-80 h-80 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/4 translate-y-1/4" />
         </div>
-        <div className="relative z-10 max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x divide-white/20">
-            {stats.map((stat, i) => (
-              <FadeInUp key={stat.label} delay={i * 0.1} className="text-center px-6 py-2">
-                <p className="text-4xl font-heading font-extrabold text-white mb-1">
+        <div className="relative z-10 max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 lg:gap-0 lg:divide-x divide-white/20">
+            {statsItems.map((stat, i) => (
+              <FadeInUp key={stat.label} delay={i * 0.1} className="text-center px-4">
+                <p className="text-4xl lg:text-5xl font-heading font-extrabold text-white mb-1">
                   <CountUp end={stat.value} suffix={stat.suffix} />
                 </p>
-                <p className="text-white/70 text-sm font-medium">{stat.label}</p>
+                <p className="text-white/70 text-xs lg:text-sm font-medium tracking-wide uppercase">{stat.label}</p>
               </FadeInUp>
             ))}
           </div>
