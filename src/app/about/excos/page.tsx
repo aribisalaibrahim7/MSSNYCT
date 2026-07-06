@@ -307,7 +307,6 @@ export default function ExcosPage() {
         {/* presidency section */}
         <section className="mb-20">
           <div className="flex items-center gap-3 mb-8 border-b border-border/80 pb-4">
-            <span className="text-2xl">👑</span>
             <h2 className="text-2xl md:text-3xl font-heading font-black text-foreground">The Presidency</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -320,7 +319,6 @@ export default function ExcosPage() {
         {/* secretariat section */}
         <section className="mb-20">
           <div className="flex items-center gap-3 mb-8 border-b border-border/80 pb-4">
-            <span className="text-2xl">📝</span>
             <h2 className="text-2xl md:text-3xl font-heading font-black text-foreground">Secretariat & Finance</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -333,7 +331,6 @@ export default function ExcosPage() {
         {/* officers section */}
         <section className="mb-20">
           <div className="flex items-center gap-3 mb-8 border-b border-border/80 pb-4">
-            <span className="text-2xl">🛡️</span>
             <h2 className="text-2xl md:text-3xl font-heading font-black text-foreground">Operational & Welfare Officers</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
