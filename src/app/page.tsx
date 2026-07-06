@@ -211,9 +211,9 @@ export default function Home() {
   }, []);
 
   const statsItems = [
-    { value: liveStats.membersCount, suffix: "+", label: "Members Registered" },
+    { value: liveStats.membersCount, suffix: "", label: "Members Registered" },
     { value: liveStats.activeCommittees, suffix: "", label: "Active Committees" },
-    { value: liveStats.annualProgrammes, suffix: "+", label: "Annual Programmes" },
+    { value: liveStats.annualProgrammes, suffix: "", label: "Annual Programmes" },
     { value: liveStats.yearsOfExcellence, suffix: "★", label: "Years of Excellence" },
   ];
 
