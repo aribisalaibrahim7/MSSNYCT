@@ -41,7 +41,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-lg shadow-primary/20">
-            <Image src="/mssn-logo.png" alt="MSSN Logo" width={40} height={40} className="w-full h-full object-cover" />
+            <Image src="/mssn-logo.jpg" alt="MSSN Logo" width={40} height={40} className="w-full h-full object-cover" />
           </div>
           <div className="hidden sm:block">
             <h1 className="text-foreground font-heading font-bold text-lg leading-tight">

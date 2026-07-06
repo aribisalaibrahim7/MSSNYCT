@@ -352,7 +352,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
-                <Image src="/mssn-logo.png" alt="MSSN Logo" width={36} height={36} className="w-full h-full object-cover" />
+                <Image src="/mssn-logo.jpg" alt="MSSN Logo" width={36} height={36} className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="font-heading font-bold text-sm">MSSN Yabatech</p>

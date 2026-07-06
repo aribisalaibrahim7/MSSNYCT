@@ -22,14 +22,12 @@ const excos: ExcoMember[] = [
     name: "Br. Abdulhafeez Oladipupo",
     role: "Ameer (President)",
     dept: "Computer Science",
-    image: "/officials/ameer.png",
     category: "presidency",
   },
   {
     name: "Sr. Halimah Mogaji",
     role: "Ameerah (Female President)",
     dept: "Food Science and Technology",
-    image: "/officials/ameerah.png",
     category: "presidency",
   },
   {
