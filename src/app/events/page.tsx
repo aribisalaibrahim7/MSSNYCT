@@ -24,7 +24,7 @@ const PaystackHandler = dynamic(() => import("@/components/events/PaystackHandle
 /* ------------------------------------------------------------------ */
 const now = new Date();
 const dawahCampClosed = now > new Date("2026-07-19T23:59:59+01:00");
-const dawahCampPrice = now <= new Date("2026-07-05T23:59:59+01:00") ? 3500 : 4000;
+const dawahCampPrice = now <= new Date("2026-07-08T23:59:59+01:00") ? 3500 : 4000;
 
 const EVENTS = [
   {
