@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { sendSMS } from "@/lib/notifications";
+import getSupabase from "@/lib/supabase";
 
 export async function POST(req: Request) {
   try {
@@ -40,6 +41,28 @@ export async function POST(req: Request) {
         profile: true
       }
     });
+
+    // Sync with Supabase Auth for password recovery capabilities
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        console.log(`Syncing user ${email} with Supabase Auth...`);
+        const { error: signUpError } = await supabase.auth.admin.createUser({
+          email,
+          password, // Store same password in Supabase Auth so it is in sync
+          email_confirm: true,
+          user_metadata: { name }
+        });
+        
+        if (signUpError) {
+          console.error("SUPABASE_SYNC_ERROR during registration", signUpError);
+        } else {
+          console.log("SUPABASE_SYNC_SUCCESSFUL for", email);
+        }
+      } catch (supabaseError) {
+        console.error("SUPABASE_SYNC_EXCEPTION", supabaseError);
+      }
+    }
 
     // Send Welcome SMS if phone number is provided
     if (phoneNumber) {

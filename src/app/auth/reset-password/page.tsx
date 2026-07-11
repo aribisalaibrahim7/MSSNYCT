@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Lock, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import getSupabaseClient from "@/lib/supabaseClient";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -18,20 +19,29 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [supabaseSession, setSupabaseSession] = useState<any>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
 
-  if (!token || !email) {
-    return (
-      <div className="text-center py-6">
-        <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Invalid Link</h3>
-        <p className="text-sm text-muted-foreground mb-6">
-          This password reset link is invalid or missing required parameters.
-        </p>
-        <Link href="/auth/forgot-password" className="text-sm font-semibold text-primary hover:underline">
-          Request a new link
-        </Link>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            setSupabaseSession(session);
+            console.log("Supabase Auth session found on load.");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check Supabase session on client", err);
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,20 +49,62 @@ function ResetPasswordForm() {
     setError("");
 
     try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, email, password }),
-      });
-      const data = await res.json();
+      // CASE A: Reset via Supabase Auth Session
+      if (supabaseSession) {
+        const supabase = getSupabaseClient();
+        if (!supabase) {
+          throw new Error("Supabase Client configuration error");
+        }
 
-      if (res.ok) {
+        console.log("Updating password in Supabase Auth...");
+        const { error: supabaseError } = await supabase.auth.updateUser({ password });
+        if (supabaseError) {
+          throw new Error(supabaseError.message);
+        }
+
+        console.log("Syncing password update to local database...");
+        const res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseSession.access_token}`
+          },
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to sync password to local database.");
+        }
+
         setSuccess(true);
+        // Log user out of Supabase Auth to clean up
+        await supabase.auth.signOut().catch(() => {});
         setTimeout(() => {
           router.push("/auth/login");
         }, 3000);
-      } else {
-        setError(data.error || "Something went wrong.");
+      } 
+      // CASE B: Reset via Traditional Token (Fallback)
+      else {
+        if (!token || !email) {
+          throw new Error("Missing reset parameters");
+        }
+
+        const res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, email, password }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          setSuccess(true);
+          setTimeout(() => {
+            router.push("/auth/login");
+          }, 3000);
+        } else {
+          setError(data.error || "Something went wrong.");
+        }
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
@@ -60,6 +112,29 @@ function ResetPasswordForm() {
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="animate-spin text-primary mb-3" size={24} />
+        <p className="text-sm text-muted-foreground">Verifying link authenticity...</p>
+      </div>
+    );
+  }
+
+  if (!supabaseSession && (!token || !email)) {
+    return (
+      <div className="text-center py-6">
+        <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Invalid Link</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          This password reset link is invalid, expired, or missing required parameters.
+        </p>
+        <Link href="/auth/forgot-password" className="text-sm font-semibold text-primary hover:underline">
+          Request a new link
+        </Link>
+      </div>
+    );
+  }
 
   if (success) {
     return (
