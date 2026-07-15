@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     const normalizedMethod = String(paymentMethod || "paystack").toLowerCase();
     const isCashPending = normalizedMethod === "cash";
-    const isPaidRegistration = !!isPaid && !isCashPending;
+    let isPaidRegistration = !!isPaid && !isCashPending;
     const normalizedStatus = isCashPending ? "pending" : (paymentStatus || "paid");
 
     if (!eventId || !eventTitle) {
@@ -24,6 +24,90 @@ export async function POST(req: Request) {
     const name   = customerName  || "Guest User";
 
     console.log("EVENT_REGISTRATION_RECEIVED:", { eventId, eventTitle, isPaid, paymentReference, email });
+
+    // ── Paystack Server-side Verification ────────────────────────────────────
+    if (isPaidRegistration && normalizedMethod === "paystack") {
+      if (!paymentReference) {
+        return new NextResponse(
+          JSON.stringify({ error: "Payment reference is required for paid events." }),
+          { status: 400 }
+        );
+      }
+
+      // Check for replay attacks / duplicate reference use
+      const existingRef = await prisma.eventRegistration.findFirst({
+        where: { paymentReference },
+      });
+      if (existingRef) {
+        return new NextResponse(
+          JSON.stringify({ error: "This payment reference has already been used." }),
+          { status: 400 }
+        );
+      }
+
+      const paystackSecret = process.env.PAYSTACK_SECRET_KEY || "sk_test_replace_me_with_your_actual_key";
+      try {
+        const paystackRes = await fetch(
+          `https://api.paystack.co/transaction/verify/${encodeURIComponent(paymentReference)}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${paystackSecret}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!paystackRes.ok) {
+          const errText = await paystackRes.text();
+          console.error("Paystack registration verify failed:", paystackRes.status, errText);
+          return new NextResponse(
+            JSON.stringify({ error: "Failed to verify payment with Paystack." }),
+            { status: 400 }
+          );
+        }
+
+        const paystackData = await paystackRes.json();
+
+        if (!paystackData.status || paystackData.data?.status !== "success") {
+          return new NextResponse(
+            JSON.stringify({ error: "Payment was not successful according to Paystack." }),
+            { status: 400 }
+          );
+        }
+
+        // Verify currency and amount
+        const expectedAmountKobo = Number(eventPrice) * 100;
+        const actualAmountKobo = paystackData.data.amount;
+        const actualCurrency = paystackData.data.currency;
+
+        if (actualCurrency !== "NGN") {
+          return new NextResponse(
+            JSON.stringify({ error: `Invalid currency: ${actualCurrency}. Expected NGN.` }),
+            { status: 400 }
+          );
+        }
+
+        if (actualAmountKobo < expectedAmountKobo) {
+          return new NextResponse(
+            JSON.stringify({
+              error: `Insufficient amount paid. Paid ₦${(actualAmountKobo / 100).toFixed(2)}, expected ₦${Number(eventPrice).toFixed(2)}.`
+            }),
+            { status: 400 }
+          );
+        }
+
+        // Verification succeeded!
+        isPaidRegistration = true;
+      } catch (verifyError: any) {
+        console.error("Paystack transaction verify API error during registration:", verifyError);
+        return new NextResponse(
+          JSON.stringify({ error: "An error occurred while verifying your payment." }),
+          { status: 500 }
+        );
+      }
+    }
+
 
     // ── Save to EventRegistration table ──────────────────────────────────────
     let receiptInfo: any = null;
